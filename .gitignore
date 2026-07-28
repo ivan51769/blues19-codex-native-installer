@@ -1,0 +1,25 @@
+# 仓库根目录的 .gitignore 屏蔽了 *.exe，但这个 exe 就是本工具的交付物本身，
+# 不跟进版本库的话，clone 下来还得先自己编译一次才能用。
+!Codex安装器.exe
+
+# 下载产物
+*.msix
+*.msixbundle
+*.appxbundle
+*.part
+*.part[0-9]*
+*.parts
+*.partial
+*.merging
+
+# 运行期产物
+status.json
+install.log
+logs/
+settings.ini
+
+# 旧版实现遗留（v2.0 起不再依赖 Node / 浏览器）
+node_modules/
+.node/
+package.json
+package-lock.json
