@@ -309,7 +309,7 @@ namespace Blues19.CodexInstaller
         private static string HelpText()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("用法：Codex安装器.exe [参数]");
+            sb.AppendLine("用法：blues19-codex-native-installer.exe [参数]");
             sb.AppendLine();
             sb.AppendLine("  不带参数        打开界面并自动检查更新");
             sb.AppendLine("  --update        打开界面并自动完成 检查 → 下载 → 安装");

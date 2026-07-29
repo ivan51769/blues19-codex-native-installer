@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $Root    = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $SrcDir  = Join-Path $Root 'src'
-$OutExe  = Join-Path $Root 'Codex安装器.exe'
+$OutExe  = Join-Path $Root 'blues19-codex-native-installer.exe'
 $IcoPath = Join-Path $SrcDir 'app.ico'
 $LogoPath= Join-Path $SrcDir 'wechat-logo.png'
 $Manifest= Join-Path $SrcDir 'app.manifest'

@@ -4,6 +4,8 @@
 
 当前版本：`2.0.0`
 
+稳定下载文件名：`blues19-codex-native-installer.exe`。GitHub Release 发布资产可在文件名后追加版本号，例如 `blues19-codex-native-installer-v2.0.0.exe`。
+
 ## 出品与作者
 
 - 公众号：**拾玖说跨境AI**
@@ -69,7 +71,7 @@
 
 ## 快速开始
 
-1. 下载仓库中的 `Codex安装器.exe`。
+1. 下载仓库中的 `blues19-codex-native-installer.exe`。
 2. 将它放到一个可写、路径较短的目录，例如 `D:\CodexInstaller`。
 3. 双击运行。
 4. 点击“一键更新”，或按需选择“检查更新”“仅下载”“安装本地包”。
@@ -114,12 +116,12 @@
 ## 命令行参数
 
 ```text
-Codex安装器.exe
-Codex安装器.exe --update
-Codex安装器.exe --check
-Codex安装器.exe --download
-Codex安装器.exe --install-local
-Codex安装器.exe --help
+blues19-codex-native-installer.exe
+blues19-codex-native-installer.exe --update
+blues19-codex-native-installer.exe --check
+blues19-codex-native-installer.exe --download
+blues19-codex-native-installer.exe --install-local
+blues19-codex-native-installer.exe --help
 ```
 
 | 参数 | 行为 |
@@ -242,7 +244,7 @@ Windows 无法立即替换正在使用的应用文件。可以选择关闭 Codex
 
 ### 能否复制到另一台电脑
 
-可以。在线使用时只需复制 `Codex安装器.exe`；离线安装时还要复制已经下载的 MSIX/MSIXBundle 文件。目标电脑仍需满足系统版本和架构要求。
+可以。在线使用时只需复制 `blues19-codex-native-installer.exe`；离线安装时还要复制已经下载的 MSIX/MSIXBundle 文件。目标电脑仍需满足系统版本和架构要求。
 
 ## 从源码构建
 
@@ -261,7 +263,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe
 如果 64 位编译器不存在，会尝试 32 位路径。构建过程不联网，也不需要 Visual Studio 或 .NET SDK。输出文件为：
 
 ```text
-Codex安装器.exe
+blues19-codex-native-installer.exe
 ```
 
 源码固定兼容 C# 5。修改时不要使用字符串插值、空条件运算符、`nameof` 或表达式体成员等较新语法。
@@ -273,9 +275,9 @@ Codex安装器.exe
 还可以离屏渲染界面，检查不同 DPI 下的布局：
 
 ```powershell
-.\Codex安装器.exe --render-ui .\ui-100.png 1.0
-.\Codex安装器.exe --render-ui .\ui-150.png 1.5
-.\Codex安装器.exe --render-ui .\ui-200.png 2.0
+.\blues19-codex-native-installer.exe --render-ui .\ui-100.png 1.0
+.\blues19-codex-native-installer.exe --render-ui .\ui-150.png 1.5
+.\blues19-codex-native-installer.exe --render-ui .\ui-200.png 2.0
 ```
 
 该参数只用于开发验证，不会安装或下载 Codex。
@@ -283,7 +285,7 @@ Codex安装器.exe
 校验构建产物哈希：
 
 ```powershell
-Get-FileHash .\Codex安装器.exe -Algorithm SHA256
+Get-FileHash .\blues19-codex-native-installer.exe -Algorithm SHA256
 ```
 
 ## 项目结构
@@ -293,7 +295,7 @@ blues19-codex-native-installer\
 ├─ README.md
 ├─ SKILL.md
 ├─ build.ps1
-├─ Codex安装器.exe
+├─ blues19-codex-native-installer.exe
 └─ src\
    ├─ Program.cs
    ├─ MainForm.cs
