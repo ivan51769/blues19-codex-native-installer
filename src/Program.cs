@@ -64,7 +64,8 @@ namespace Blues19.CodexInstaller
             if (rawArgs != null && rawArgs.Length >= 2 &&
                 rawArgs[0].TrimStart('-', '/').Equals("render-ui", StringComparison.OrdinalIgnoreCase))
             {
-                return RenderUi(rawArgs[1], rawArgs.Length > 2 ? rawArgs[2] : null);
+                return RenderUi(rawArgs[1], rawArgs.Length > 2 ? rawArgs[2] : null,
+                    rawArgs.Length > 3 ? rawArgs[3] : null);
             }
 
             string action = ParseAction(rawArgs);
@@ -169,7 +170,7 @@ namespace Blues19.CodexInstaller
         /// 离屏渲染界面用于排版自检。scaleOverride 可以模拟高分屏（如 1.5、2.0），
         /// 这样不用真的换一台机器就能验证缩放后的排版。
         /// </summary>
-        private static int RenderUi(string outPath, string scaleOverride)
+        private static int RenderUi(string outPath, string scaleOverride, string installerUpdateTag)
         {
             try
             {
@@ -189,6 +190,11 @@ namespace Blues19.CodexInstaller
                     form.Location = new System.Drawing.Point(-32000, -32000);
                     form.Show();
                     Application.DoEvents();
+                    if (!string.IsNullOrEmpty(installerUpdateTag))
+                    {
+                        form.PreviewInstallerUpdate(installerUpdateTag);
+                        Application.DoEvents();
+                    }
 
                     using (System.Drawing.Bitmap bmp =
                         new System.Drawing.Bitmap(form.Width, form.Height))
@@ -211,7 +217,7 @@ namespace Blues19.CodexInstaller
             }
         }
 
-        public const string AppVersion = "2.0.0";
+        public const string AppVersion = "2.1.0";
 
         /// <summary>
         /// Codex 的清单要求 Windows 10 2004（内部版本 19041）及以上。
@@ -308,8 +314,12 @@ namespace Blues19.CodexInstaller
 
         private static string HelpText()
         {
+            string exeName = "blues19-codex-native-installer-v" + AppVersion + "-<YYYY-MM-DD>.exe";
+            try { exeName = Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location); }
+            catch { }
+
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("用法：blues19-codex-native-installer.exe [参数]");
+            sb.AppendLine("用法：" + exeName + " [参数]");
             sb.AppendLine();
             sb.AppendLine("  不带参数        打开界面并自动检查更新");
             sb.AppendLine("  --update        打开界面并自动完成 检查 → 下载 → 安装");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-  <assemblyIdentity version="2.0.0.0" name="Blues19.CodexInstaller" type="win32" />
+  <assemblyIdentity version="2.1.0.0" name="Blues19.CodexInstaller" type="win32" />
   <description>Codex 原生安装器</description>
 
   <!-- 只需当前用户权限：Add-AppxPackage 安装到当前用户不需要管理员，

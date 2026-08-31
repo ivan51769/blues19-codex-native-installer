@@ -7,7 +7,16 @@ $ErrorActionPreference = 'Stop'
 
 $Root    = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $SrcDir  = Join-Path $Root 'src'
-$OutExe  = Join-Path $Root 'blues19-codex-native-installer.exe'
+$ProgramPath = Join-Path $SrcDir 'Program.cs'
+$ProgramText = Get-Content -LiteralPath $ProgramPath -Raw -Encoding UTF8
+$VersionMatch = [regex]::Match($ProgramText, 'public\s+const\s+string\s+AppVersion\s*=\s*"([^"]+)"')
+if (-not $VersionMatch.Success) {
+    throw "无法从 $ProgramPath 读取 AppVersion。"
+}
+$AppVersion = $VersionMatch.Groups[1].Value
+$BuildDate = Get-Date -Format 'yyyy-MM-dd'
+$ArtifactName = "blues19-codex-native-installer-v$AppVersion-$BuildDate.exe"
+$OutExe  = Join-Path $Root $ArtifactName
 $IcoPath = Join-Path $SrcDir 'app.ico'
 $LogoPath= Join-Path $SrcDir 'wechat-logo.png'
 $Manifest= Join-Path $SrcDir 'app.manifest'
@@ -30,6 +39,7 @@ Write-Ok $Csc
 
 # ---- 2. 收集源码 -------------------------------------------------------------
 Write-Head '收集源码'
+Write-Ok "输出文件：$ArtifactName"
 $Sources = Get-ChildItem -Path $SrcDir -Filter *.cs -File | Sort-Object Name
 if (-not $Sources) { throw "src 目录下没有找到 .cs 源文件。" }
 $Sources | ForEach-Object { Write-Ok $_.Name }

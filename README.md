@@ -2,9 +2,9 @@
 
 一个面向 Windows 的 Codex 桌面应用独立安装器。它直接从微软官方分发服务查询、下载并安装 Codex 的 MSIX 安装包，不需要浏览器自动化，也不需要另外安装 Node.js、npm、Visual Studio 或 .NET SDK。
 
-当前版本：`2.0.0`
+当前版本：`2.1.0`
 
-稳定下载文件名：`blues19-codex-native-installer.exe`。GitHub Release 发布资产可在文件名后追加版本号，例如 `blues19-codex-native-installer-v2.0.0.exe`。
+程序文件名格式：`blues19-codex-native-installer-v<版本>-<YYYY-MM-DD>.exe`。当前构建文件为 `blues19-codex-native-installer-v2.1.0-2026-08-31.exe`。
 
 ## 出品与作者
 
@@ -14,9 +14,15 @@
 
 公众号 Logo、名称与作者署名已嵌入窗口顶部的品牌面板和单文件 EXE，不需要额外携带图片文件。
 
+## 为什么做这个工具
+
+在这台测试机的实际使用中，Codex 窗口里的自带更新经常需要等待较久，下载和安装进度也不够直观。另一个容易忽略的前提是：Codex 的 Microsoft Store／MSIX 更新链路需要 Windows Update 相关更新能力正常；如果相关服务或策略被禁用，或者 Windows Update 端点被代理、防火墙拦截，原生更新可能卡住或失败。
+
+这个工具提供一条步骤和进度都可见的独立更新路径，但不会替用户开启 Windows Update 服务，也不会修改组策略或系统自动更新设置。检查和下载仍需要访问微软产品目录、Windows Update 分发服务与微软 CDN，安装仍交给 Windows 的 MSIX 部署接口完成。
+
 ## 界面预览
 
-![Codex 原生安装器中文主界面](docs/images/codex-installer-main-zh-cn.png)
+![Codex 原生安装器 v2.1.0 中文主界面](docs/images/codex-installer-main-v2.1.0-2026-08-31.png)
 
 主界面从上到下分为四个区域：
 
@@ -30,6 +36,12 @@
 ![Codex 原生安装器检查完成状态](docs/images/codex-installer-check-success-zh-cn.png)
 
 上图是一次真实的“检查更新”完成结果：程序识别本机已安装版本，向微软分发服务同步安装包清单，过滤不匹配的架构，再显示最新版本、安装包大小和最终结论。图中的版本号仅代表截图时的结果，实际版本以运行时微软服务器返回为准。
+
+### 安装器自身的更新通知
+
+![安装器检测到 GitHub 新版本时的通知界面](docs/images/codex-installer-self-update-notice-v2.1.0.png)
+
+上图使用开发期虚拟版本 `v9.9.9` 离屏渲染，用来验证新版提示和按钮布局，并不代表 GitHub 上真实存在该版本。正常启动时程序会查询本项目的最新公开 Release；只有版本高于当前安装器时，才显示“查看新版”按钮。
 
 ## 中文环境支持
 
@@ -57,6 +69,7 @@
 - 直接调用 Windows WinRT 部署接口安装；不可用时回退到 PowerShell。
 - 检测 Codex 正在运行时，可选择关闭后安装或等待 Codex 退出后生效。
 - 支持系统代理、自动探测本地代理、手动代理和强制直连。
+- 每次启动都在后台检查本工具的 GitHub Release；发现更高版本时在品牌面板提示并显示“查看新版”按钮。
 - 记录运行日志、归档日志和供外部程序读取的 `status.json`。
 - 同一工作目录只允许一个实例运行，避免分块文件和日志互相覆盖。
 
@@ -64,19 +77,21 @@
 
 - Windows 10 版本 2004（内部版本 19041）或更高版本，包括 Windows 11。
 - Windows 自带的 .NET Framework 4.8。
-- 可以访问微软商店目录、Windows Update 分发服务和微软下载 CDN。
+- Windows Update／Microsoft Store 相关更新能力没有被服务、组策略、防火墙或代理禁用；能够访问微软商店目录、Windows Update 分发服务和微软下载 CDN。
 - 安装到当前 Windows 用户，不要求管理员权限。
 
 工具会根据系统架构选择可用包。最终是否提供相应架构的 Codex 安装包，以微软服务器返回结果为准。
 
+这里要求的是更新链路可用，不等于必须永久开启 Windows 的“自动安装系统更新”。微软官方排障文档说明，Microsoft Store 安装或更新应用时需要能够访问 Windows Update 端点：<https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/troubleshooting-microsoft-store-apps-download-failure>
+
 ## 快速开始
 
-1. 下载仓库中的 `blues19-codex-native-installer.exe`。
+1. 下载仓库或 GitHub Release 中带版本和构建日期的 EXE，例如 `blues19-codex-native-installer-v2.1.0-2026-08-31.exe`。
 2. 将它放到一个可写、路径较短的目录，例如 `D:\CodexInstaller`。
 3. 双击运行。
 4. 点击“一键更新”，或按需选择“检查更新”“仅下载”“安装本地包”。
 
-默认启动后会自动检查更新。
+默认启动后会同时执行两项互不影响的检查：主界面查询 Codex 最新版本；后台查询安装器自身的 GitHub 最新 Release。GitHub 暂时不可访问时只会在日志中说明，不会阻断 Codex 的检查、下载或安装。
 
 ### Windows SmartScreen 提示
 
@@ -96,6 +111,7 @@
 | 打开目录 | 想找安装包、配置、日志或状态文件 | 在文件资源管理器中打开程序当前使用的工作目录 | 不会 |
 | 打开日志 | 需要查看或分享本次运行的完整记录 | 使用系统默认文本程序打开 `install.log` | 不会 |
 | 网络设置 | 检查正常但下载超时，或需要指定代理 | 打开代理设置窗口，可选择系统代理、自动探测、手动代理或强制直连 | 不会 |
+| 查看新版 | 品牌面板提示安装器有新版本时 | 打开本项目对应的 GitHub Release 页面，由用户确认并下载新版 EXE；程序不会静默覆盖自身 | 不会 |
 | 取消 | 当前检查、下载或安装不应继续 | 向当前操作发送取消请求；已下载的分块会保留，之后可以断点续传 | 不会主动发起安装 |
 
 ### 推荐操作顺序
@@ -108,6 +124,7 @@
 
 顶部状态区用于判断结果：
 
+- 品牌面板右侧显示安装器自身的版本检查结果；只有 GitHub 上存在更高版本时才显示“查看新版”。
 - “当前状态”显示正在检查、下载、安装、完成或失败。
 - “已安装版本”来自当前 Windows 用户已注册的 Codex 包。
 - “最新版本”和“安装包大小”来自微软分发服务。
@@ -116,12 +133,12 @@
 ## 命令行参数
 
 ```text
-blues19-codex-native-installer.exe
-blues19-codex-native-installer.exe --update
-blues19-codex-native-installer.exe --check
-blues19-codex-native-installer.exe --download
-blues19-codex-native-installer.exe --install-local
-blues19-codex-native-installer.exe --help
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --update
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --check
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --download
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --install-local
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --help
 ```
 
 | 参数 | 行为 |
@@ -194,6 +211,7 @@ blues19-codex-native-installer.exe --help
 
 程序访问的核心服务包括：
 
+- `api.github.com`：每次启动查询安装器自身的最新公开 Release；
 - `displaycatalog.mp.microsoft.com`：查询 Codex 产品信息；
 - `fe3.delivery.mp.microsoft.com` 和备用分发入口：查询 Windows Update 元数据；
 - `dl.delivery.mp.microsoft.com` 等微软 CDN：下载安装包。
@@ -214,7 +232,7 @@ blues19-codex-native-installer.exe --help
 ## 安全与隐私
 
 - 不要求 Microsoft 账号密码，也不会读取 Codex 登录凭据。
-- 查询和下载使用微软产品目录、Windows Update 分发服务及微软 CDN。
+- 安装器自身的版本检查只向 GitHub Release API 发起 GET 请求；Codex 查询和下载使用微软产品目录、Windows Update 分发服务及微软 CDN。
 - 安装包会进行大小和 SHA-1 校验，Windows 部署服务还会校验 MSIX 签名。
 - 代理配置只保存在本机 `settings.ini`。
 - 日志可能包含本机路径、版本、网络错误和安装结果；对外分享日志前请先检查内容。
@@ -244,7 +262,7 @@ Windows 无法立即替换正在使用的应用文件。可以选择关闭 Codex
 
 ### 能否复制到另一台电脑
 
-可以。在线使用时只需复制 `blues19-codex-native-installer.exe`；离线安装时还要复制已经下载的 MSIX/MSIXBundle 文件。目标电脑仍需满足系统版本和架构要求。
+可以。在线使用时只需复制带版本和构建日期的安装器 EXE；离线安装时还要复制已经下载的 MSIX/MSIXBundle 文件。目标电脑仍需满足系统版本和架构要求。
 
 ## 从源码构建
 
@@ -260,10 +278,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe
 ```
 
-如果 64 位编译器不存在，会尝试 32 位路径。构建过程不联网，也不需要 Visual Studio 或 .NET SDK。输出文件为：
+如果 64 位编译器不存在，会尝试 32 位路径。构建过程不联网，也不需要 Visual Studio 或 .NET SDK。构建脚本会从 `Program.AppVersion` 读取版本号，并使用构建当天日期自动生成文件名，例如：
 
 ```text
-blues19-codex-native-installer.exe
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe
 ```
 
 源码固定兼容 C# 5。修改时不要使用字符串插值、空条件运算符、`nameof` 或表达式体成员等较新语法。
@@ -275,9 +293,9 @@ blues19-codex-native-installer.exe
 还可以离屏渲染界面，检查不同 DPI 下的布局：
 
 ```powershell
-.\blues19-codex-native-installer.exe --render-ui .\ui-100.png 1.0
-.\blues19-codex-native-installer.exe --render-ui .\ui-150.png 1.5
-.\blues19-codex-native-installer.exe --render-ui .\ui-200.png 2.0
+.\blues19-codex-native-installer-v2.1.0-2026-08-31.exe --render-ui .\ui-100.png 1.0
+.\blues19-codex-native-installer-v2.1.0-2026-08-31.exe --render-ui .\ui-150.png 1.5
+.\blues19-codex-native-installer-v2.1.0-2026-08-31.exe --render-ui .\ui-200.png 2.0
 ```
 
 该参数只用于开发验证，不会安装或下载 Codex。
@@ -285,7 +303,7 @@ blues19-codex-native-installer.exe
 校验构建产物哈希：
 
 ```powershell
-Get-FileHash .\blues19-codex-native-installer.exe -Algorithm SHA256
+Get-FileHash .\blues19-codex-native-installer-v2.1.0-2026-08-31.exe -Algorithm SHA256
 ```
 
 ## 项目结构
@@ -295,7 +313,7 @@ blues19-codex-native-installer\
 ├─ README.md
 ├─ SKILL.md
 ├─ build.ps1
-├─ blues19-codex-native-installer.exe
+├─ blues19-codex-native-installer-v<版本>-<YYYY-MM-DD>.exe
 └─ src\
    ├─ Program.cs
    ├─ MainForm.cs
@@ -308,6 +326,7 @@ blues19-codex-native-installer\
    ├─ Logger.cs
    ├─ Models.cs
    ├─ Http.cs
+   ├─ InstallerUpdateChecker.cs
    ├─ Util.cs
    ├─ ProgressPanel.cs
    ├─ Glass.cs
@@ -316,6 +335,13 @@ blues19-codex-native-installer\
    ├─ app.manifest
    └─ app.ico
 ```
+
+## v2.1 更新
+
+- 每次正常启动都后台检查安装器自身的 GitHub 最新 Release，不使用跨启动缓存。
+- GitHub 上存在更高版本时，在品牌面板显示版本提示和“查看新版”按钮。
+- “查看新版”只允许打开本项目的 HTTPS GitHub Release 页面，避免响应中的异常链接被直接打开。
+- GitHub 超时、限流或不可访问时仅记录日志，不弹窗，也不影响 Codex 更新流程。
 
 ## v2.0 相比旧版
 
@@ -332,5 +358,6 @@ blues19-codex-native-installer\
 
 - EXE 当前没有代码签名证书，首次下载运行可能触发 SmartScreen。
 - 工具依赖微软服务可用性，无法在完全离线且没有本地安装包时查询或下载。
+- 工具不会自动开启 Windows Update 服务或修改组策略；相关更新能力被禁用时，需要先由用户或系统管理员恢复。
 - 当前界面只有中文。
 - 微软接口、产品 ID、安装包命名或分发策略发生变化时，查询逻辑可能需要更新。

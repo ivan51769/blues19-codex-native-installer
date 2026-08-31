@@ -1,6 +1,6 @@
 # 仓库根目录的 .gitignore 屏蔽了 *.exe，但这个 exe 就是本工具的交付物本身，
 # 不跟进版本库的话，clone 下来还得先自己编译一次才能用。
-!blues19-codex-native-installer.exe
+!blues19-codex-native-installer-v*.exe
 
 # 下载产物
 *.msix

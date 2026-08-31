@@ -2,7 +2,7 @@
 
 一个单文件 exe，直接从**微软官方分发服务器**取得 Codex 的离线安装包（`.msix`）并调用系统部署接口安装。
 
-双击 `blues19-codex-native-installer.exe` 即可，**不需要 Node.js、不需要浏览器、不需要任何运行库**，拷到别的 Windows 电脑上照样能跑。
+双击带版本和构建日期的 EXE（例如 `blues19-codex-native-installer-v2.1.0-2026-08-31.exe`）即可，**不需要 Node.js、不需要浏览器、不需要任何运行库**，拷到别的 Windows 电脑上照样能跑。
 
 ### v2.0 做了什么
 
@@ -30,7 +30,7 @@ v2.0 改成直接走微软自己的接口，把整条链路收进一个 141 KB �
 
 ### 使用
 
-双击 `blues19-codex-native-installer.exe` 打开界面，默认自动检查更新。界面上的按钮：
+双击 `blues19-codex-native-installer-v2.1.0-2026-08-31.exe` 打开界面，默认自动检查更新。界面上的按钮：
 
 - **一键更新**：检查 → 下载 → 安装，一路到底
 - **检查更新**：只看本机版本和最新版本
@@ -42,12 +42,12 @@ v2.0 改成直接走微软自己的接口，把整条链路收进一个 141 KB �
 也支持命令行参数，方便做成快捷方式或计划任务：
 
 ```text
-blues19-codex-native-installer.exe                 打开界面并自动检查更新
-blues19-codex-native-installer.exe --update        自动完成 检查 → 下载 → 安装
-blues19-codex-native-installer.exe --check         只检查
-blues19-codex-native-installer.exe --download      只下载
-blues19-codex-native-installer.exe --install-local 直接安装本地已有的包
-blues19-codex-native-installer.exe --help          显示帮助
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe                 打开界面并自动检查更新
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --update        自动完成 检查 → 下载 → 安装
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --check         只检查
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --download      只下载
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --install-local 直接安装本地已有的包
+blues19-codex-native-installer-v2.1.0-2026-08-31.exe --help          显示帮助
 ```
 
 ### 输出位置
@@ -72,7 +72,7 @@ blues19-codex-native-installer.exe --help          显示帮助
 程序已经把常见错误码翻译成了中文处理建议，按提示做即可。完整的系统原文在日志里。
 
 **要装到别的电脑上**
-把 `blues19-codex-native-installer.exe` 单独拷过去就行，不需要带任何其它文件。要求 Windows 10 版本 2004（内部版本 19041）及以上——这也是 Codex 本身的要求。
+把带版本和构建日期的安装器 EXE 单独拷过去就行，不需要带任何其它文件。要求 Windows 10 版本 2004（内部版本 19041）及以上——这也是 Codex 本身的要求。
 
 **首次运行弹出「Windows 已保护你的电脑」**
 这个 exe 没有购买代码签名证书，所以从网上/邮件传过去的副本会被 SmartScreen 拦一次。点「更多信息 → 仍要运行」即可，之后不再提示。用 U 盘或局域网直接拷贝通常不会触发。
@@ -108,5 +108,5 @@ powershell -ExecutionPolicy Bypass -File build.ps1
 界面排版自检（离屏渲染，不占用桌面）：
 
 ```powershell
-.\blues19-codex-native-installer.exe --render-ui out.png 1.5   # 模拟 150% 缩放
+.\blues19-codex-native-installer-v2.1.0-2026-08-31.exe --render-ui out.png 1.5   # 模拟 150% 缩放
 ```

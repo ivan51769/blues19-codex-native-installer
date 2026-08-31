@@ -64,9 +64,11 @@ namespace Blues19.CodexInstaller
         private readonly string _startupAction;
 
         private Label _stateValue, _installedValue, _latestValue, _sizeValue, _hint, _dirLabel;
+        private Label _installerUpdateStatus;
         private ProgressPanel _progress;
         private RichTextBox _logBox;
         private Button _btnCheck, _btnUpdate, _btnDownload, _btnInstallLocal, _btnFolder, _btnOpenLog, _btnNetwork, _btnCancel;
+        private Button _btnInstallerUpdate;
         private CheckBox _forceRedownload;
 
         private Rectangle _closeRect, _minRect;
@@ -80,6 +82,8 @@ namespace Blues19.CodexInstaller
         private InstalledPackage _installed;
         private string _finalState = "idle";
         private string _mode = "gui";
+        private string _installerUpdateUrl;
+        private bool _installerUpdateCheckStarted;
 
         private static float _scaleOverride;
 
@@ -596,17 +600,38 @@ namespace Blues19.CodexInstaller
                 }
 
                 int textX = logoX + logoSize + S(14);
+                int textWidth = Math.Max(S(180), p.Width - textX - S(358));
                 using (Font nameFont = new Font("Microsoft YaHei UI", 11F, FontStyle.Bold))
                     TextRenderer.DrawText(g, "拾玖说跨境AI", nameFont,
-                        new Rectangle(textX, S(8), p.Width - textX - S(16), S(24)),
+                        new Rectangle(textX, S(8), textWidth, S(24)),
                         Color.FromArgb(244, 224, 168),
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
                 using (Font authorFont = new Font("Microsoft YaHei UI", 8.5F, FontStyle.Regular))
                     TextRenderer.DrawText(g, "作者：拾玖Blues  ·  Blues19 开源工具", authorFont,
-                        new Rectangle(textX, S(31), p.Width - textX - S(16), S(20)),
+                        new Rectangle(textX, S(31), textWidth, S(20)),
                         Color.FromArgb(202, 225, 211),
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
             };
+
+            int updateButtonW = S(104);
+            int updateRight = S(12);
+            int updateStatusW = S(220);
+            int updateGap = S(10);
+
+            _installerUpdateStatus = NewClippedLabel(
+                "安装器 v" + Program.AppVersion + " · 启动时检查更新",
+                w - updateRight - updateButtonW - updateGap - updateStatusW,
+                S(19), updateStatusW, 8.5F, FontStyle.Regular, Color.FromArgb(202, 225, 211));
+            _installerUpdateStatus.TextAlign = ContentAlignment.MiddleRight;
+            _installerUpdateStatus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            p.Controls.Add(_installerUpdateStatus);
+
+            _btnInstallerUpdate = NewButton("查看新版",
+                w - updateRight - updateButtonW, S(13), updateButtonW, S(32), Amber);
+            _btnInstallerUpdate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _btnInstallerUpdate.Visible = false;
+            _btnInstallerUpdate.Click += delegate { OpenInstallerUpdatePage(); };
+            p.Controls.Add(_btnInstallerUpdate);
             return p;
         }
 
@@ -1272,12 +1297,100 @@ namespace Blues19.CodexInstaller
             }
         }
 
+        private void OpenInstallerUpdatePage()
+        {
+            string url = _installerUpdateUrl;
+            if (!InstallerUpdateChecker.IsTrustedReleaseUrl(url)) return;
+
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo(url);
+                psi.UseShellExecute = true;
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, "打开 GitHub Release 页面失败：" + ex.Message,
+                    "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void StartInstallerUpdateCheck()
+        {
+            if (_installerUpdateCheckStarted) return;
+            _installerUpdateCheckStarted = true;
+
+            UiInvoke(delegate
+            {
+                _installerUpdateStatus.Text = "安装器 v" + Program.AppVersion + " · 正在检查…";
+            });
+
+            Thread checker = new Thread(delegate ()
+            {
+                try
+                {
+                    InstallerReleaseInfo release = InstallerUpdateChecker.Check(CancellationToken.None);
+                    if (InstallerUpdateChecker.IsNewer(release.Version, Program.AppVersion))
+                    {
+                        _log.Warn("安装器发现新版本：" + release.TagName +
+                                  "（当前 v" + Program.AppVersion + "）");
+                        ShowInstallerUpdateAvailable(release.TagName, release.ReleaseUrl);
+                    }
+                    else
+                    {
+                        _log.Info("安装器已是最新版（v" + Program.AppVersion + "）。");
+                        UiInvoke(delegate
+                        {
+                            _installerUpdateStatus.Text = "安装器 v" + Program.AppVersion + " · 已是最新版";
+                            _installerUpdateStatus.ForeColor = Color.FromArgb(202, 225, 211);
+                            _btnInstallerUpdate.Visible = false;
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.Warn("安装器更新检查暂时不可用（不影响使用）：" + FirstLine(ex.Message));
+                    UiInvoke(delegate
+                    {
+                        _installerUpdateStatus.Text = "安装器 v" + Program.AppVersion + " · 暂无法检查";
+                        _installerUpdateStatus.ForeColor = Color.FromArgb(202, 225, 211);
+                        _btnInstallerUpdate.Visible = false;
+                    });
+                }
+            });
+            checker.IsBackground = true;
+            checker.Name = "InstallerUpdateCheck";
+            checker.Start();
+        }
+
+        private void ShowInstallerUpdateAvailable(string tagName, string releaseUrl)
+        {
+            UiInvoke(delegate
+            {
+                _installerUpdateUrl = releaseUrl;
+                _installerUpdateStatus.Text = "v" + Program.AppVersion + " → " + tagName + " 可更新";
+                _installerUpdateStatus.ForeColor = Color.FromArgb(255, 224, 138);
+                _btnInstallerUpdate.Visible = true;
+                _btnInstallerUpdate.BringToFront();
+            });
+        }
+
+        /// <summary>离屏排版验证用，不发网络请求。</summary>
+        internal void PreviewInstallerUpdate(string tagName)
+        {
+            ShowInstallerUpdateAvailable(tagName,
+                InstallerUpdateChecker.RepositoryUrl + "/releases/tag/" + tagName);
+        }
+
         // ---------------- 生命周期 ----------------
 
         private void OnShown(object sender, EventArgs e)
         {
             // 排版自检模式：只把界面画出来，不发起任何网络或安装动作
             if (_startupAction == "none") return;
+
+            // 每次正常启动都单独检查一次安装器自身版本；失败不会阻断 Codex 的检查与安装。
+            StartInstallerUpdateCheck();
 
             _log.Info(string.Format("界面：缩放比 {0:0.00}，窗口 {1}×{2}，工作区 {3}×{4}",
                 _scale, Width, Height,
